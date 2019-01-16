@@ -9,6 +9,7 @@ public class CharacterMovement : MonoBehaviour
     public float jumpForce = 10.0f;
     public float gravity = 14.0f;
     private CharacterController controller;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +35,11 @@ public class CharacterMovement : MonoBehaviour
         move.x = Input.GetAxis("Horizontal") * speed;
         move.y = verticalVelocity;
         move.z = Input.GetAxis("Vertical") * speed;
-        controller.Move(move * Time.deltaTime);
 
+        Vector3 relativeMovement = Camera.main.transform.TransformVector(move);
+
+        controller.Move(relativeMovement * Time.deltaTime);
+
+        
     }
 }
