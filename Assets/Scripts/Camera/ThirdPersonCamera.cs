@@ -44,6 +44,5 @@ public class ThirdPersonCamera : MonoBehaviour
         camTransform.position = lookAt.position + rotation * dir;
         camTransform.LookAt(lookAt.position);
         player.SendMessage("setCurrentX", currentX);
-        print(currentX);
     }
 }
