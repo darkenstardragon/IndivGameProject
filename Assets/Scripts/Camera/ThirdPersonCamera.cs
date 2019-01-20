@@ -9,6 +9,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private const float Y_ANGLE_MAX = 10.0f; // is really 50
     public Transform lookAt;
     public Transform camTransform;
+    public GameObject player;
 
     private Camera cam;
 
@@ -42,5 +43,7 @@ public class ThirdPersonCamera : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(-currentY, currentX, 0);
         camTransform.position = lookAt.position + rotation * dir;
         camTransform.LookAt(lookAt.position);
+        player.SendMessage("setCurrentX", currentX);
+        print(currentX);
     }
 }
