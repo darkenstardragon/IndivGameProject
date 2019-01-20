@@ -9,7 +9,8 @@ public class UserStats : MonoBehaviour
 
     public Texture barsBackgroundTexture;
 
-    public GameObject meleeDetection;
+    public GameObject meleeDetector;
+    public GameObject AoeDetector;
     // Start is called before the first frame update
 
     public void Start()
@@ -72,10 +73,10 @@ public class UserStats : MonoBehaviour
         switch (id)
         {
             case 0:
-                meleeDetection.SendMessage("useSkill", 10);
+                meleeDetector.SendMessage("useSkill", 10);
                 break;
             case 1:
-                print("Use skill 2");
+                AoeDetector.SendMessage("useSkill", 20);
                 break;
             default:
                 print("Skill error");

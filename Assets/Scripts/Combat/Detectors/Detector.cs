@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeleeDetector : MonoBehaviour
+public class Detector : MonoBehaviour
 {
     public float damage = 10;
     public bool activate;
