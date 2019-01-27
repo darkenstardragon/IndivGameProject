@@ -5,11 +5,13 @@ using UnityEngine;
 public class Detector : MonoBehaviour
 {
     private HashSet<Collider> colliders;
+    private HashSet<string> colliderNames;
     private float damage = 0;
 
     private void Start()
     {
         colliders = new HashSet<Collider>();
+        colliderNames = new HashSet<string>();
     }
     /*
     private void OnTriggerStay(Collider col)
@@ -21,12 +23,15 @@ public class Detector : MonoBehaviour
         }
     }
     */
+    
     private void OnTriggerEnter(Collider col)
     {
-        if(col.tag == "enemy")
+        
+        if (col.tag == "enemy" && !colliderNames.Contains(col.name))
         {
             colliders.Add(col);
-            print("added");
+            colliderNames.Add(col.name);
+            print("name: " + col.name);
         }
     }
 
@@ -34,11 +39,13 @@ public class Detector : MonoBehaviour
     {
         if(col.tag == "enemy")
         {
+            print("remove: " + col.name);
+            colliderNames.Remove(col.name);
             colliders.Remove(col);
         }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
 
         if(damage > 0)

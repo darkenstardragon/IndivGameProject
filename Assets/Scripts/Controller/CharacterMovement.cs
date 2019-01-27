@@ -55,27 +55,27 @@ public class CharacterMovement : MonoBehaviour
         if (h > 0)
         {
             if(v > 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 45 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 45 + currentX, 0), rotateSpeed);
             else if(v < 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 135 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 135 + currentX, 0), rotateSpeed);
             else if(v == 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 90 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 90 + currentX, 0), rotateSpeed);
         }
         else if(h == 0)
         {
             if(v > 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 0 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 0 + currentX, 0), rotateSpeed);
             else if(v < 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 180 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, 180 + currentX, 0), rotateSpeed);
         }
         else if(h < 0)
         {
             if (v > 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -45 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -45 + currentX, 0), rotateSpeed);
             else if (v < 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -135 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -135 + currentX, 0), rotateSpeed);
             else if (v == 0)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -90 + currentX, 0), Time.deltaTime * rotateSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, -90 + currentX, 0), rotateSpeed);
         }
     }
 
@@ -83,4 +83,5 @@ public class CharacterMovement : MonoBehaviour
     {
         currentX = curX;
     }
+
 }

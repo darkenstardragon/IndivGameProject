@@ -33,41 +33,7 @@ public class UserStats : MonoBehaviour
         }
         ResetChargingBars();
     }
-    /*
-    public void OnGUI()
-    {
-        Rect rect1 = new Rect(Screen.width / 2 - 200, Screen.height - 64, 32, 32);
-        Rect rect2 = new Rect(Screen.width / 2 - 150, Screen.height - 64, 32, 32);
-
-        if (GUI.Button (rect1, "1"))
-        {
-            activateSkill(playerSkills[0].id);
-        }
-
-        if (rect1.Contains(Event.current.mousePosition))
-        {
-            GUI.DrawTexture(new Rect(Input.mousePosition.x + 20, Screen.height - Input.mousePosition.y - 150, 200, 200), barsBackgroundTexture);
-            GUI.Label(new Rect(Input.mousePosition.x + 20, Screen.height - Input.mousePosition.y - 150, 200, 200),
-                playerSkills[0].name + "\n" +
-                "Description: " + playerSkills[0].description + "\n" +
-                "Skill ID: " + playerSkills[0].id);
-        }
-
-        if (GUI.Button(rect2, "2"))
-        {
-            activateSkill(playerSkills[1].id);
-        }
-
-        if (rect2.Contains(Event.current.mousePosition))
-        {
-            GUI.DrawTexture(new Rect(Input.mousePosition.x + 20, Screen.height - Input.mousePosition.y - 150, 200, 200), barsBackgroundTexture);
-            GUI.Label(new Rect(Input.mousePosition.x + 20, Screen.height - Input.mousePosition.y - 150, 200, 200),
-                playerSkills[1].name + "\n" +
-                "Description: " + playerSkills[1].description + "\n" +
-                "Skill ID: " + playerSkills[1].id);
-        }
-    }
-    */
+    
     public void Update()
     {
         if (playerSkills[0].currentCooldown == 0)
@@ -94,7 +60,6 @@ public class UserStats : MonoBehaviour
             }
             if (Input.GetKeyUp("1") && !SkillOnline2)
             {
-                
                 ResetChargingBars();
                 StartCoroutine(activateSkill(playerSkills[0].id));
             }
@@ -123,7 +88,6 @@ public class UserStats : MonoBehaviour
             }
             if (Input.GetKeyUp("2") && !SkillOnline1)
             {
-                
                 ResetChargingBars();
                 StartCoroutine(activateSkill(playerSkills[1].id));
             }
@@ -161,6 +125,7 @@ public class UserStats : MonoBehaviour
             ChargingBars[i].fillAmount = 0;
         }
     }
+
 
     private IEnumerator activateSkill(int id)
     {
