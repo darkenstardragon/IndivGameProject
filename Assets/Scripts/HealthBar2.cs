@@ -22,7 +22,8 @@ public class HealthBar2 : MonoBehaviour
     {
         float ratio = hitpoint / maxHitpoint;
         currentHealthBar.rectTransform.localScale = new Vector3(ratio, 1, 1);
-        ratioText.text = (ratio * 100).ToString("0") + '%';
+        //ratioText.text = (ratio * 100).ToString("0") + '%';
+        ratioText.text = hitpoint.ToString();
     }
 
     private void TakeDamage(float damage)
