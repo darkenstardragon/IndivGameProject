@@ -15,17 +15,17 @@ public class UserStats : MonoBehaviour
 
     public void Start()
     {
-        playerSkills[0].id = allSkills[0].id;
-        playerSkills[0].name = allSkills[0].name;
-        playerSkills[0].description = allSkills[0].description;
-        playerSkills[0].icon = allSkills[0].icon;
-
-        playerSkills[1].id = allSkills[1].id;
-        playerSkills[1].name = allSkills[1].name;
-        playerSkills[1].description = allSkills[1].description;
-        playerSkills[1].icon = allSkills[1].icon;
+        for(int i = 0; i < 2; ++i)
+        {
+            playerSkills[i].id = allSkills[i].id;
+            playerSkills[i].name = allSkills[i].name;
+            playerSkills[i].description = allSkills[i].description;
+            playerSkills[i].icon = allSkills[i].icon;
+            playerSkills[i].cooldown = allSkills[i].cooldown;
+            playerSkills[i].currentCooldown = allSkills[i].currentCooldown;
+        }
     }
-
+    /*
     public void OnGUI()
     {
         Rect rect1 = new Rect(Screen.width / 2 - 200, Screen.height - 64, 32, 32);
@@ -59,24 +59,48 @@ public class UserStats : MonoBehaviour
                 "Skill ID: " + playerSkills[1].id);
         }
     }
-
+    */
     public void Update()
     {
-        if (Input.GetKeyDown("1"))
+        if (Input.GetKeyDown("1") && playerSkills[0].currentCooldown == 0)
             activateSkill(playerSkills[0].id);
-        if (Input.GetKeyDown("2"))
+        if (Input.GetKeyDown("2") && playerSkills[1].currentCooldown == 0)
             activateSkill(playerSkills[1].id);
+        for (int i = 0; i < playerSkills.Length; ++i)
+        {
+            if (playerSkills[i].currentCooldown > 0)
+            {
+                playerSkills[i].icon.fillAmount = 1 - playerSkills[i].currentCooldown / playerSkills[i].cooldown;
+            }
+            
+        }
     }
 
+    public void FixedUpdate()
+    {
+        for (int i = 0; i < playerSkills.Length; ++i)
+        {
+            if (playerSkills[i].currentCooldown > 0)
+            {
+                playerSkills[i].currentCooldown -= Time.deltaTime;
+            }
+            else if(playerSkills[i].currentCooldown < 0)
+            {
+                playerSkills[i].currentCooldown = 0;
+            }
+        }
+    }
     private void activateSkill(int id)
     {
         switch (id)
         {
             case 0:
                 meleeDetector.SendMessage("useSkill", 10);
+                playerSkills[0].currentCooldown = playerSkills[0].cooldown;
                 break;
             case 1:
                 AoeDetector.SendMessage("useSkill", 20);
+                playerSkills[1].currentCooldown = playerSkills[1].cooldown;
                 break;
             default:
                 print("Skill error");

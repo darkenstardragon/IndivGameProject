@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class HealthBar2 : MonoBehaviour
 {
+    public GameObject FloatingTextPrefab;
     public Image currentHealthBar;
     public Text ratioText;
 
@@ -33,6 +34,17 @@ public class HealthBar2 : MonoBehaviour
             Debug.Log("dead");
         }
         UpdateHealthbar();
+        if(FloatingTextPrefab != null)
+        {
+            ShowFloatingText(damage);
+        }
+    }
+
+    private void ShowFloatingText(float damage)
+    {
+        var x = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity, transform);
+        x.GetComponent<TextMesh>().text = damage.ToString();
+        x.GetComponent<Transform>().LookAt(2 * transform.position - Camera.main.transform.position);
     }
 
     private void HealDamage(float heal)

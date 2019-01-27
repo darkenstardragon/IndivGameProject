@@ -39,10 +39,13 @@ public class CharacterMovement : MonoBehaviour
         move.z = Input.GetAxis("Vertical") * speed;
 
         Vector3 relativeMovement = Camera.main.transform.TransformVector(move);
+
+        Vector3.ProjectOnPlane(Camera.main.transform.forward, Vector3.up);
+        
         relativeMovement.y = verticalVelocity;
 
         rotateManagement(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
+        
         controller.Move(relativeMovement * Time.deltaTime);
         
     }

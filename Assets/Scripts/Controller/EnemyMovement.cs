@@ -1,28 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-
+using UnityEngine.UI;
 public class EnemyMovement : MonoBehaviour
 {
-    public float lookRadius = 10.0f;
-    Transform target;
-    NavMeshAgent agent;
-    // Start is called before the first frame update
+
+    public Transform Player;
+    public float MoveSpeed = 4;
+    public float MaxDist = 5;
+    public float MinDist = 2;
+    public float lookDistance = 10.0f;
+
+    public CharacterController controller;
+
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        controller = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
-    }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, lookRadius);
+        
+        transform.LookAt(Player);
+        if (Vector3.Distance(transform.position, Player.position) >= MinDist && Vector3.Distance(transform.position, Player.position) < lookDistance)
+        {
+            Vector3 dir = Vector3.Normalize(Player.position - transform.position);
+
+            controller.Move(dir * Time.deltaTime);
+            
+
+
+            if (Vector3.Distance(transform.position, Player.position) <= MaxDist)
+            {
+                print("Reached");
+            }
+
+        }
     }
 }
