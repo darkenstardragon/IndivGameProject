@@ -5,6 +5,8 @@ using UnityEngine.UI;
 [System.Serializable]
 public class UserStats : MonoBehaviour
 {
+    private const float RUSHING_TIME = 1.5f;
+
     public Skill[] allSkills;
     public Skill[] playerSkills;
 
@@ -23,6 +25,8 @@ public class UserStats : MonoBehaviour
     private bool SkillOnline2 = false;
     private bool SkillOnline3 = false;
 
+    private bool onGround = true;
+
     public void Start()
     {
         for(int i = 0; i < 4; ++i)
@@ -38,6 +42,28 @@ public class UserStats : MonoBehaviour
     }
     
     public void Update()
+    {
+        if(onGround)
+            ProcessSkills();
+        UpdateCooldown();
+    }
+
+    public void FixedUpdate()
+    {
+        for (int i = 0; i < playerSkills.Length; ++i)
+        {
+            if (playerSkills[i].currentCooldown > 0)
+            {
+                playerSkills[i].currentCooldown -= Time.deltaTime;
+            }
+            else if(playerSkills[i].currentCooldown < 0)
+            {
+                playerSkills[i].currentCooldown = 0;
+            }
+        }
+    }
+    
+    private void ProcessSkills()
     {
         //Thunder Strike
         if (playerSkills[0].currentCooldown == 0)
@@ -60,7 +86,7 @@ public class UserStats : MonoBehaviour
                 }
                 else if (ChargeTime > 3)
                     ChargeTime = 3.0f;
-                
+
             }
             if (Input.GetKeyUp("1") && !SkillOnline2 && !SkillOnline3)
             {
@@ -126,24 +152,14 @@ public class UserStats : MonoBehaviour
                 StartCoroutine(activateSkill(playerSkills[2].id));
             }
         }
-        UpdateCooldown();
-    }
-
-    public void FixedUpdate()
-    {
-        for (int i = 0; i < playerSkills.Length; ++i)
+        if (playerSkills[3].currentCooldown == 0)
         {
-            if (playerSkills[i].currentCooldown > 0)
+            if (Input.GetKey("4") && !SkillOnline1 && !SkillOnline2 && !SkillOnline3)
             {
-                playerSkills[i].currentCooldown -= Time.deltaTime;
-            }
-            else if(playerSkills[i].currentCooldown < 0)
-            {
-                playerSkills[i].currentCooldown = 0;
+                StartCoroutine(activateSkill(playerSkills[3].id));
             }
         }
     }
-    
 
     private void UpdateCooldown()
     {
@@ -193,15 +209,24 @@ public class UserStats : MonoBehaviour
                 ChargeLevel = (int)ChargeTime3 + 1;
                 meleeDetector.SendMessage("LifeSteal", 8 * ChargeLevel);
                 ChargeTime3 = 0;
-                print("test");
                 playerSkills[2].currentCooldown = playerSkills[2].cooldown;
                 SkillOnline3 = false;
                 yield return new WaitForSeconds(0.5f);
+                break;
+            case 3:
+                transform.SendMessage("Rush");
+                yield return new WaitForSeconds(0.5f + RUSHING_TIME);
+                playerSkills[3].currentCooldown = playerSkills[3].cooldown;
                 break;
             default:
                 print("Skill error");
                 break;
         }
+    }
+
+    private void PlayerIsOnGround(bool b)
+    {
+        onGround = b;
     }
 
 }
