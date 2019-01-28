@@ -6,9 +6,13 @@ using UnityEngine.AI;
 public class BetterEnemyMovement : MonoBehaviour
 {
     public Transform player;
+    public Transform detector;
+
     NavMeshAgent agent;
     public float lookDistance = 10.0f;
     public float stopDistance = 3.0f;
+
+    private bool stopMoving = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,13 +22,23 @@ public class BetterEnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Vector3.Distance(transform.position, player.position) <= lookDistance)
+        if (!stopMoving)
         {
-            agent.destination = player.position;
-            if(Vector3.Distance(transform.position, player.position) < stopDistance)
+            transform.LookAt(player);
+            if (Vector3.Distance(transform.position, player.position) <= lookDistance)
             {
-                agent.destination = transform.position;
+                agent.destination = player.position;
+                if (Vector3.Distance(transform.position, player.position) < stopDistance)
+                {
+                    agent.destination = transform.position;
+                }
             }
         }
+    }
+
+    void SetDead()
+    {
+        stopMoving = true;
+        detector.SendMessage("SetStopAttacking");
     }
 }

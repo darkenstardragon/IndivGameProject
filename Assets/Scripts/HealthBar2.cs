@@ -12,6 +12,8 @@ public class HealthBar2 : MonoBehaviour
     private float hitpoint = 150;
     private float maxHitpoint = 150;
 
+    private bool isDead = false;
+
     private void Start()
     {
         UpdateHealthbar();
@@ -32,7 +34,7 @@ public class HealthBar2 : MonoBehaviour
         if(hitpoint < 0)
         {
             hitpoint = 0;
-            Debug.Log("dead");
+            isDead = true;
         }
         UpdateHealthbar();
         if(FloatingTextPrefab != null)
@@ -56,5 +58,18 @@ public class HealthBar2 : MonoBehaviour
             hitpoint = maxHitpoint;
         }
         UpdateHealthbar();
+    }
+
+    private void LateUpdate()
+    {
+        if (isDead)
+        {
+            ratioText.text = "DEAD";
+            if(transform.tag == "enemy")
+            {
+                transform.SendMessage("SetDead");
+                Destroy(gameObject, 5);
+            }
+        }
     }
 }

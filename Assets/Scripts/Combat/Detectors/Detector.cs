@@ -7,6 +7,9 @@ public class Detector : MonoBehaviour
     private HashSet<Collider> colliders;
     private HashSet<string> colliderNames;
     private float damage = 0;
+    private bool isVampirisim = false;
+
+    public Transform player;
 
     private void Start()
     {
@@ -31,7 +34,6 @@ public class Detector : MonoBehaviour
         {
             colliders.Add(col);
             colliderNames.Add(col.name);
-            print("name: " + col.name);
         }
     }
 
@@ -39,7 +41,6 @@ public class Detector : MonoBehaviour
     {
         if(col.tag == "enemy")
         {
-            print("remove: " + col.name);
             colliderNames.Remove(col.name);
             colliders.Remove(col);
         }
@@ -50,16 +51,28 @@ public class Detector : MonoBehaviour
 
         if(damage > 0)
         {
+            float totalDamage = 0.0f;
             foreach(Collider col in colliders)
             {
                 col.SendMessage("TakeDamage", damage);
+                totalDamage += damage;
             }
             damage = 0;
+            if (isVampirisim)
+            {
+                isVampirisim = !isVampirisim;
+                player.SendMessage("HealDamage", totalDamage / 2);
+                totalDamage = 0.0f;
+            }
         }
     }
     public void useSkill(int d)
     {
-        print("col count = " + colliders.Count);
         damage = d;
+    }
+    public void LifeSteal(int d)
+    {
+        damage = d;
+        isVampirisim = true;
     }
 }
