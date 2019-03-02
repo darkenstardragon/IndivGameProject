@@ -8,6 +8,7 @@ public class Detector : MonoBehaviour
     private HashSet<string> colliderNames;
     private float damage = 0;
     private bool isVampirisim = false;
+    private bool isKnockBack = false;
 
     public Transform player;
 
@@ -52,10 +53,29 @@ public class Detector : MonoBehaviour
         if(damage > 0)
         {
             float totalDamage = 0.0f;
-            foreach(Collider col in colliders)
+            try
             {
-                col.SendMessage("TakeDamage", damage);
-                totalDamage += damage;
+                foreach (Collider col in colliders)
+                {
+                    try
+                    {
+                        col.SendMessage("TakeDamage", damage);
+                        player.SendMessage("IncreaseComboPoint");
+                        if (isKnockBack)
+                        {
+                            col.SendMessage("KnockBack", 0.25f);
+                        }
+                    }
+                    catch (MissingReferenceException)
+                    {
+                        colliders.Remove(col);
+                    }
+                    totalDamage += damage;
+                }
+            }
+            catch (System.InvalidOperationException)
+            {
+
             }
             damage = 0;
             if (isVampirisim)
@@ -66,13 +86,20 @@ public class Detector : MonoBehaviour
             }
         }
     }
-    public void useSkill(int d)
+    public void DealDamage(int d)
     {
         damage = d;
+        
     }
     public void LifeSteal(int d)
     {
         damage = d;
         isVampirisim = true;
+    }
+
+    public void KnockBack(int d)
+    {
+        damage = d;
+        isKnockBack = true;
     }
 }

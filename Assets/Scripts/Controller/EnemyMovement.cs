@@ -13,6 +13,10 @@ public class EnemyMovement : MonoBehaviour
 
     public CharacterController controller;
 
+    
+
+    private Vector3 dir = Vector3.zero;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -21,12 +25,12 @@ public class EnemyMovement : MonoBehaviour
     void Update()
     {
 
-        
+
         transform.LookAt(Player);
         if (Vector3.Distance(transform.position, Player.position) >= MinDist && Vector3.Distance(transform.position, Player.position) < lookDistance)
         {
-            Vector3 dir = Vector3.Normalize(Player.position - transform.position);
-
+            dir = Vector3.Normalize(Player.position - transform.position);
+            
             controller.Move(dir * Time.deltaTime);
             
 
@@ -38,4 +42,6 @@ public class EnemyMovement : MonoBehaviour
 
         }
     }
+
+    
 }

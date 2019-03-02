@@ -22,18 +22,30 @@ public class ThirdPersonCamera : MonoBehaviour
     private float sensitivityY = 4.0f;
     private float zoomSensitivity = 5.0f;
 
+    private bool freeRotateMode = false;
+    
     private void Start()
     {
         camTransform = transform;
         cam = Camera.main;
-        
+        Cursor.visible = true;
     }
 
     private void Update()
     {
         distance -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity;
         distance = Mathf.Clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
-        if (Input.GetMouseButton(0))
+        /*
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            
+            freeRotateMode = !freeRotateMode;
+            Cursor.visible = !freeRotateMode;
+            player.transform.SendMessage("SetMovementDisable", !freeRotateMode);
+            //print(Cursor.visible);
+        }
+        */
+        if (Input.GetMouseButton(1) || freeRotateMode)
         {
             currentX += Input.GetAxis("Mouse X") * sensitivityX;
             currentY += Input.GetAxis("Mouse Y") * sensitivityY;
@@ -48,6 +60,6 @@ public class ThirdPersonCamera : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(-currentY, currentX, 0);
         camTransform.position = lookAt.position + rotation * dir;
         camTransform.LookAt(lookAt.position);
-        player.SendMessage("setCurrentX", currentX);
+        player.SendMessage("SetCurrentX", currentX);
     }
 }

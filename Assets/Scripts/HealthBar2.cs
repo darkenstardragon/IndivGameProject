@@ -13,6 +13,8 @@ public class HealthBar2 : MonoBehaviour
     private float maxHitpoint = 150;
 
     private bool isDead = false;
+    private bool isParry = false;
+    private bool isDodging = false;
 
     private void Start()
     {
@@ -30,14 +32,25 @@ public class HealthBar2 : MonoBehaviour
 
     private void TakeDamage(float damage)
     {
-        hitpoint -= damage;
-        if(hitpoint < 0)
+        if (!isParry && !isDodging)
+        {
+            hitpoint -= damage;
+        }
+        else if (isParry)
+        {
+            ShowFloatingText("Blocked!");
+        }
+        else if (isDodging)
+        {
+            ShowFloatingText("Dodged!");
+        }
+        if(hitpoint <= 0)
         {
             hitpoint = 0;
             isDead = true;
         }
         UpdateHealthbar();
-        if(FloatingTextPrefab != null)
+        if(FloatingTextPrefab != null && transform.tag != "Player")
         {
             ShowFloatingText(damage);
         }
@@ -47,6 +60,13 @@ public class HealthBar2 : MonoBehaviour
     {
         var x = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity, transform);
         x.GetComponent<TextMesh>().text = damage.ToString();
+        x.GetComponent<Transform>().LookAt(2 * transform.position - Camera.main.transform.position);
+    }
+
+    private void ShowFloatingText(string s)
+    {
+        var x = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity, transform);
+        x.GetComponent<TextMesh>().text = s;
         x.GetComponent<Transform>().LookAt(2 * transform.position - Camera.main.transform.position);
     }
 
@@ -71,5 +91,15 @@ public class HealthBar2 : MonoBehaviour
                 Destroy(gameObject, 5);
             }
         }
+    }
+
+    private void SetParrying(bool b)
+    {
+        isParry = b;
+    }
+
+    private void SetDodging(bool b)
+    {
+        isDodging = b;
     }
 }

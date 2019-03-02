@@ -5,16 +5,27 @@ using UnityEngine.UI;
 [System.Serializable]
 public class UserStats : MonoBehaviour
 {
-    private const float RUSHING_TIME = 1.5f;
+
+    private Animator anim;
+
+    public const float RUSHING_TIME = 1.5f;
+    public const float DODGING_TIME = 0.5f;
 
     public Skill[] allSkills;
     public Skill[] playerSkills;
 
     public Texture barsBackgroundTexture;
     public Image[] ChargingBars;
+    public Image ChargingBarBackground;
+    public Image ComboBar;
 
     public GameObject meleeDetector;
     public GameObject AoeDetector;
+
+    public Image DodgingBar;
+
+    //public GameObject AoEPrefab;
+    //public GameObject ThunderStrikePrefab;
     // Start is called before the first frame update
 
     private float ChargeTime = 0.0f;
@@ -25,11 +36,33 @@ public class UserStats : MonoBehaviour
     private bool SkillOnline2 = false;
     private bool SkillOnline3 = false;
 
+    private bool SkillOnline = false;
+    private bool autoAttackOnline = false;
+
     private bool onGround = true;
+
+    public const float DodgingCooldown = 1;
+    public float CurrentDodgingCooldown;
+
+    private bool isMoving = false;
+
+    private float timeSinceLastAttack = 0.0f;
+    private int attackingStep = 0;
+    private const float timeToInterruptAttackChain = 1.0f;
+
+    private int currentCombo = 0;
+    private const int maxCombo = 20;
+    private float currentComboTime = 0.0f;
+    private const float comboResetTime = 5.0f;
+    private float currentComboFillAmount = 0.0f;
+    private const float comboFillingSpeed = 0.005f;
+    private const float errorCorrectionFloat = 0.01f;
 
     public void Start()
     {
-        for(int i = 0; i < 4; ++i)
+        anim = GetComponentInChildren<Animator>();
+        CurrentDodgingCooldown = DodgingCooldown;
+        for(int i = 0; i < 8; ++i)
         {
             playerSkills[i].id = allSkills[i].id;
             playerSkills[i].name = allSkills[i].name;
@@ -38,7 +71,19 @@ public class UserStats : MonoBehaviour
             playerSkills[i].cooldown = allSkills[i].cooldown;
             playerSkills[i].currentCooldown = allSkills[i].currentCooldown;
         }
+        SetChargingBarVisibility(false);
         ResetChargingBars();
+        ComboBar.fillAmount = 0.0f;
+        /*
+         * 0 - Thunder Strike
+         * 1 - Cyclone
+         * 2 - AA chain #1
+         * 3 - Rush
+         * 4 - AA chain #2
+         * 5 - AA chain #3
+         * 6 - Parry
+         * 7 - Combo Release Jump Attack
+        */
     }
     
     public void Update()
@@ -46,9 +91,23 @@ public class UserStats : MonoBehaviour
         if(onGround)
             ProcessSkills();
         UpdateCooldown();
+        SetChargingBarVisibility(IsCharging());
+
+
+        timeSinceLastAttack += Time.deltaTime;
+        currentComboTime += Time.deltaTime;
+        //print(attackingStep);
+        if(timeSinceLastAttack > timeToInterruptAttackChain)
+        {
+            anim.SetTrigger("StopAA");
+            attackingStep = 0;
+            timeSinceLastAttack = 0.0f;
+        }
+
+        ProcessComboBarSystem();
     }
 
-    public void FixedUpdate()
+    public void LateUpdate()
     {
         for (int i = 0; i < playerSkills.Length; ++i)
         {
@@ -61,16 +120,48 @@ public class UserStats : MonoBehaviour
                 playerSkills[i].currentCooldown = 0;
             }
         }
+
+        if (CurrentDodgingCooldown > 0)
+            CurrentDodgingCooldown -= Time.deltaTime;
+        else if (CurrentDodgingCooldown < 0)
+            CurrentDodgingCooldown = 0;
+
+        DodgingBar.fillAmount = 1 - CurrentDodgingCooldown / DodgingCooldown;
     }
     
     private void ProcessSkills()
     {
+        //Dodging
+        if (CurrentDodgingCooldown == 0)
+        {
+            if (Input.GetKey(KeyCode.LeftShift) && !SkillOnline1 && !SkillOnline2 && !SkillOnline3 && !SkillOnline)
+            {
+                print("1");
+                SkillOnline = true;
+                CurrentDodgingCooldown = DodgingCooldown;
+                StartCoroutine(ActivateSkill(99));
+            }
+        }
+
         //Thunder Strike
         if (playerSkills[0].currentCooldown == 0)
         {
-            if (Input.GetKey("1") && !SkillOnline2 && !SkillOnline3)
+            if (Input.GetKey("1") && !SkillOnline2 && !SkillOnline3 && !SkillOnline)
             {
                 SkillOnline1 = true;
+                transform.SendMessage("SetCharging", true);
+                anim.SetBool("isCharging", true);
+                if (isMoving)
+                {
+                    anim.SetBool("isMovingWhileCharging", true);
+                    //print("trueee");
+                }
+                else
+                {
+                    anim.SetBool("isMovingWhileCharging", false);
+                    //print("falseee");
+                }
+                
                 ChargeTime += Time.deltaTime;
                 if (ChargeTime < 1)
                 {
@@ -88,16 +179,16 @@ public class UserStats : MonoBehaviour
                     ChargeTime = 3.0f;
 
             }
-            if (Input.GetKeyUp("1") && !SkillOnline2 && !SkillOnline3)
+            if (Input.GetKeyUp("1") && !SkillOnline2 && !SkillOnline3 && !SkillOnline)
             {
                 ResetChargingBars();
-                StartCoroutine(activateSkill(playerSkills[0].id));
+                StartCoroutine(ActivateSkill(playerSkills[0].id));
             }
         }
         //Cyclone Axe
         if (playerSkills[1].currentCooldown == 0)
         {
-            if (Input.GetKey("2") && !SkillOnline1 && !SkillOnline3)
+            if (Input.GetKey("2") && !SkillOnline1 && !SkillOnline3 && !SkillOnline)
             {
                 SkillOnline2 = true;
                 ChargeTime2 += Time.deltaTime;
@@ -117,16 +208,17 @@ public class UserStats : MonoBehaviour
                     ChargeTime2 = 3.0f;
 
             }
-            if (Input.GetKeyUp("2") && !SkillOnline1 && !SkillOnline3)
+            if (Input.GetKeyUp("2") && !SkillOnline1 && !SkillOnline3 && !SkillOnline)
             {
                 ResetChargingBars();
-                StartCoroutine(activateSkill(playerSkills[1].id));
+                StartCoroutine(ActivateSkill(playerSkills[1].id));
             }
         }
         //Vampiric Blow
+        /*
         if (playerSkills[2].currentCooldown == 0)
         {
-            if (Input.GetKey("3") && !SkillOnline1 && !SkillOnline2)
+            if (Input.GetKey("3") && !SkillOnline1 && !SkillOnline2 && !SkillOnline)
             {
                 SkillOnline3 = true;
                 ChargeTime3 += Time.deltaTime;
@@ -146,19 +238,77 @@ public class UserStats : MonoBehaviour
                     ChargeTime3 = 3.0f;
 
             }
-            if (Input.GetKeyUp("3") && !SkillOnline1 && !SkillOnline2)
+            if (Input.GetKeyUp("3") && !SkillOnline1 && !SkillOnline2 && !SkillOnline)
             {
                 ResetChargingBars();
-                StartCoroutine(activateSkill(playerSkills[2].id));
+                StartCoroutine(ActivateSkill(playerSkills[2].id));
+            }
+        }*/
+
+
+        if (Input.GetMouseButtonDown(0) && OtherSkillsAreNotOnline())
+        {
+            autoAttackOnline = true;
+            if(attackingStep == 0)
+            {
+                anim.SetTrigger("attack");
+                timeSinceLastAttack = 0.0f;
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[2].id));
+            }
+            else if(attackingStep == 1)
+            {
+                //print("222222222222");
+                anim.SetTrigger("attack2");
+                timeSinceLastAttack = 0.0f;
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[4].id));
+            }
+            else if(attackingStep == 2)
+            {
+                //print("33333333333");
+                anim.SetTrigger("attack3");
+                timeSinceLastAttack = 0.0f;
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[5].id));
             }
         }
+        
+
         if (playerSkills[3].currentCooldown == 0)
         {
-            if (Input.GetKey("4") && !SkillOnline1 && !SkillOnline2 && !SkillOnline3)
+            
+            if (Input.GetKeyDown("4") && OtherSkillsAreNotOnline())
             {
-                StartCoroutine(activateSkill(playerSkills[3].id));
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[3].id));
             }
         }
+
+        if (playerSkills[6].currentCooldown == 0)
+        {
+            if (Input.GetKeyDown(KeyCode.E) && OtherSkillsAreNotOnline())
+            {
+                anim.SetBool("isParrying", true);
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[6].id));
+            }
+        }
+
+        if (currentCombo == maxCombo)
+        {
+            if (Input.GetKeyDown(KeyCode.Q) && OtherSkillsAreNotOnline())
+            {
+                anim.SetBool("ReleaseCombo", true);
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[7].id));
+            }
+        }
+    }
+
+    private bool OtherSkillsAreNotOnline()
+    {
+        return !SkillOnline1 && !SkillOnline2 && !SkillOnline3 && !SkillOnline;
     }
 
     private void UpdateCooldown()
@@ -181,46 +331,162 @@ public class UserStats : MonoBehaviour
     }
 
 
-    private IEnumerator activateSkill(int id)
+    private IEnumerator ActivateSkill(int id)
     {
         switch (id)
         {
             case 0:
                 int ChargeLevel = (int)ChargeTime + 1;
-                meleeDetector.SendMessage("useSkill", 10 * ChargeLevel);
+                meleeDetector.SendMessage("DealDamage", 10 * ChargeLevel);
+                anim.SetBool("isMovingWhileCharging", false);
+                anim.SetBool("isCharging", false);
+                transform.SendMessage("SetCharging", false);
                 ChargeTime = 0;
                 playerSkills[0].currentCooldown = playerSkills[0].cooldown;
-                SkillOnline1 = false;
+                transform.SendMessage("SetMovementDisable", true);
                 yield return new WaitForSeconds(0.5f);
+                transform.SendMessage("SetMovementDisable", false);
+                SkillOnline1 = false;
+                
                 break;
             case 1:
                 ChargeLevel = (int)ChargeTime2 + 1;
                 for(int i = 0; i < 3; ++i)
                 {
-                    AoeDetector.SendMessage("useSkill", 5 * ChargeLevel);
+                    AoeDetector.SendMessage("DealDamage", 5 * ChargeLevel);
                     yield return new WaitForSeconds(0.25f);
                 }
                 ChargeTime2 = 0;
                 playerSkills[1].currentCooldown = playerSkills[1].cooldown;
-                SkillOnline2 = false;
                 yield return new WaitForSeconds(0.5f);
+                SkillOnline2 = false;
                 break;
             case 2:
+                /* :: Old Vampiric Blow Skill
                 ChargeLevel = (int)ChargeTime3 + 1;
                 meleeDetector.SendMessage("LifeSteal", 8 * ChargeLevel);
                 ChargeTime3 = 0;
                 playerSkills[2].currentCooldown = playerSkills[2].cooldown;
-                SkillOnline3 = false;
                 yield return new WaitForSeconds(0.5f);
+                SkillOnline3 = false;
+                */
+
+                //Now this is auto attack (left click)
+                meleeDetector.SendMessage("KnockBack", 5);
+                playerSkills[2].currentCooldown = playerSkills[2].cooldown;
+                transform.SendMessage("SetMovementDisable", true);
+                //transform.SendMessage("AfterCastMoving", 0.05f);
+                yield return new WaitForSeconds(0.5f);
+                transform.SendMessage("SetMovementDisable", false);
+
+                
+               // yield return new WaitForSeconds(0.5f);
+                ++attackingStep;
+                SkillOnline = false;
+                autoAttackOnline = false;
                 break;
             case 3:
                 transform.SendMessage("Rush");
                 yield return new WaitForSeconds(0.5f + RUSHING_TIME);
                 playerSkills[3].currentCooldown = playerSkills[3].cooldown;
+                SkillOnline = false;
+                break;
+
+            case 4:
+                meleeDetector.SendMessage("KnockBack", 10);
+                playerSkills[4].currentCooldown = playerSkills[4].cooldown;
+                transform.SendMessage("SetMovementDisable", true);
+                //transform.SendMessage("AfterCastMoving", 0.05f);
+                yield return new WaitForSeconds(0.5f);
+                transform.SendMessage("SetMovementDisable", false);
+                //yield return new WaitForSeconds(0.5f);
+                ++attackingStep;
+                SkillOnline = false;
+                autoAttackOnline = false;
+                anim.SetTrigger("StopAA");
+                break;
+
+            case 5:
+                transform.SendMessage("SetMovementDisable", true);
+                yield return new WaitForSeconds(0.3f);
+                AoeDetector.SendMessage("KnockBack", 15);
+                playerSkills[5].currentCooldown = playerSkills[5].cooldown;
+                
+                transform.SendMessage("AfterCastMoving", 0.05f);
+                
+                yield return new WaitForSeconds(0.5f);
+                transform.SendMessage("SetMovementDisable", false);
+                yield return new WaitForSeconds(0.5f);
+                
+                SkillOnline = false;
+                autoAttackOnline = false;
+                anim.SetTrigger("StopAA");
+                attackingStep = 0;
+                break;
+
+            case 6:
+                transform.SendMessage("SetMovementDisable", true);
+                transform.SendMessage("SetParrying", true);
+                yield return new WaitForSeconds(1.0f);
+                transform.SendMessage("SetParrying", false);
+                transform.SendMessage("SetMovementDisable", false);
+                anim.SetBool("isParrying", false);
+                playerSkills[6].currentCooldown = playerSkills[6].cooldown;
+                SkillOnline = false;
+                break;
+
+            case 7:
+                transform.SendMessage("SetMovementDisable", true);
+                float[] timeAndSpeed = {1.0f, 3.0f};
+                transform.SendMessage("AfterCastMoving", timeAndSpeed);
+                yield return new WaitForSeconds(1.0f);
+                for (int i = 0; i < 3; i++)
+                {
+                    AoeDetector.SendMessage("KnockBack", 10);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                
+                transform.SendMessage("SetMovementDisable", false);
+                playerSkills[7].currentCooldown = playerSkills[7].cooldown;
+                SkillOnline = false;
+                anim.SetBool("ReleaseCombo", false);
+                currentCombo = 0;
+                break;
+            case 99:
+                //print("2");
+                transform.SendMessage("Dodge");
+                transform.SendMessage("SetDodging", true);
+                yield return new WaitForSeconds(DODGING_TIME);
+                transform.SendMessage("SetDodging", false);
+                SkillOnline = false;
                 break;
             default:
                 print("Skill error");
                 break;
+        }
+    }
+
+    private void ProcessComboBarSystem()
+    {
+        if (currentComboTime > comboResetTime)
+        {
+            currentCombo = 0;
+            currentComboTime = 0.0f;
+        }
+        if (currentCombo > maxCombo) currentCombo = maxCombo;
+
+        float comboValue = (float)currentCombo / (float)maxCombo;
+        if (currentComboFillAmount <= comboValue - errorCorrectionFloat)
+        {
+            ComboBar.fillAmount += comboFillingSpeed;
+            currentComboFillAmount += comboFillingSpeed;
+            //print("++");
+        }
+        else if (currentComboFillAmount > comboValue + errorCorrectionFloat)
+        {
+            currentComboFillAmount -= comboFillingSpeed;
+            ComboBar.fillAmount -= comboFillingSpeed;
+            //print("--");
         }
     }
 
@@ -229,4 +495,29 @@ public class UserStats : MonoBehaviour
         onGround = b;
     }
 
+    private void SetMoving(bool b)
+    {
+        isMoving = b;
+    }
+
+    private bool IsCharging()
+    {
+        return SkillOnline1 || SkillOnline2 || SkillOnline3;
+    }
+
+    private void SetChargingBarVisibility(bool b)
+    {
+        ChargingBarBackground.gameObject.SetActive(b);
+        for(int i = 0; i < 3; i++)
+        {
+            ChargingBars[i].gameObject.SetActive(b);
+        }
+    }
+
+    private void IncreaseComboPoint()
+    {
+        ++currentCombo;
+        currentComboTime = 0.0f;
+        //print(currentCombo);
+    }
 }
