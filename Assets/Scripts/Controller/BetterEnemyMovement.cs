@@ -82,8 +82,9 @@ public class BetterEnemyMovement : MonoBehaviour
         //TODO: Short Immobilize after being knocked
     }
 
-    void SetDead()
+    public void SetDead()
     {
+        print("dead");
         isDead = true;
         detector.SendMessage("SetStopAttacking");
     }

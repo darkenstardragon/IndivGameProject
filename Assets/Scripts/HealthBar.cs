@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthBar2 : MonoBehaviour
+public class HealthBar : MonoBehaviour
 {
     public GameObject FloatingTextPrefab;
     public Image currentHealthBar;
     public Text ratioText;
+    public SkillScript skillScript;
+    public BetterEnemyMovement betterEnemyMovement;
+    
 
     private float hitpoint = 150;
     private float maxHitpoint = 150;
@@ -19,7 +22,8 @@ public class HealthBar2 : MonoBehaviour
     private void Start()
     {
         UpdateHealthbar();
-
+        skillScript = FindObjectOfType<SkillScript>();
+        betterEnemyMovement = FindObjectOfType<BetterEnemyMovement>();
     }
 
     private void UpdateHealthbar()
@@ -32,13 +36,16 @@ public class HealthBar2 : MonoBehaviour
 
     private void TakeDamage(float damage)
     {
+        //print("isParry = " + isParry);
         if (!isParry && !isDodging)
         {
             hitpoint -= damage;
         }
         else if (isParry)
         {
+            //print("inn");
             ShowFloatingText("Blocked!");
+            skillScript.ReadyCounterAttack();
         }
         else if (isDodging)
         {
@@ -82,10 +89,11 @@ public class HealthBar2 : MonoBehaviour
 
     private void LateUpdate()
     {
+        //if (isParry) print("isParryyyy");
         if (isDead)
         {
             ratioText.text = "DEAD";
-            if(transform.tag == "enemy")
+            if(transform.tag == "enemy" && transform != null)
             {
                 transform.SendMessage("SetDead");
                 Destroy(gameObject, 5);
@@ -93,12 +101,13 @@ public class HealthBar2 : MonoBehaviour
         }
     }
 
-    private void SetParrying(bool b)
+    public void SetParrying(bool b)
     {
+        //print("Parry" + b);
         isParry = b;
     }
 
-    private void SetDodging(bool b)
+    public void SetDodging(bool b)
     {
         isDodging = b;
     }
