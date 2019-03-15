@@ -11,6 +11,7 @@ public class SkillScript : MonoBehaviour
 
     public const float RUSHING_TIME = 1.5f;
     public const float DODGING_TIME = 0.5f;
+    public float currentDodgingTime = 0.0f;
 
     public Skill[] allSkills;
     public Skill[] playerSkills;
@@ -121,6 +122,15 @@ public class SkillScript : MonoBehaviour
             }
         }
 
+        if(currentDodgingTime > 0)
+        {
+            currentDodgingTime -= Time.deltaTime;
+        }
+        else
+        {
+            currentDodgingTime = 0;
+        }
+
         ProcessComboBarSystem();
     }
 
@@ -153,7 +163,7 @@ public class SkillScript : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftShift) && !SkillOnline1 && !SkillOnline2 && !SkillOnline3 && !SkillOnline)
             {
-                print("1");
+                //print("1");
                 SkillOnline = true;
                 CurrentDodgingCooldown = DodgingCooldown;
                 StartCoroutine(ActivateSkill(99));
@@ -265,7 +275,7 @@ public class SkillScript : MonoBehaviour
         // Auto Attack
         if (Input.GetMouseButtonDown(0) && OtherSkillsAreNotOnline())
         {
-            if (!readyToCounter)
+            if (!readyToCounter && currentDodgingTime == 0)
             {
                 autoAttackOnline = true;
                 if (attackingStep == 0)
@@ -332,6 +342,9 @@ public class SkillScript : MonoBehaviour
             }
         }
 
+        
+
+        /*
         if(readyToCounter && Input.GetMouseButtonDown(0))
         {
             transform.SendMessage("SetParrying", false);
@@ -344,7 +357,7 @@ public class SkillScript : MonoBehaviour
             anim.SetTrigger("attack3");
             SkillOnline = true;
             StartCoroutine(ActivateSkill(playerSkills[8].id));
-        }
+        }*/
     }
 
     private bool OtherSkillsAreNotOnline()
@@ -520,9 +533,11 @@ public class SkillScript : MonoBehaviour
                 //print("2");
                 characterMovement.Dodge();
                 transform.SendMessage("SetDodging", true);
+                currentDodgingTime = DODGING_TIME;
                 yield return new WaitForSeconds(DODGING_TIME);
                 transform.SendMessage("SetDodging", false);
                 SkillOnline = false;
+                currentDodgingTime = 1.0f;
                 break;
             default:
                 print("Skill error");
