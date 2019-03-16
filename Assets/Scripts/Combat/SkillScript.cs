@@ -322,14 +322,37 @@ public class SkillScript : MonoBehaviour
             }
         }
 
+        // PARRY
         if (playerSkills[6].currentCooldown == 0)
         {
+            /*
             if (Input.GetKeyDown(KeyCode.E) && OtherSkillsAreNotOnline())
             {
                 anim.SetBool("isParrying", true);
                 SkillOnline = true;
                 StartCoroutine(ActivateSkill(playerSkills[6].id));
+            }*/
+            if (Input.GetKey(KeyCode.E) && !SkillOnline1 && !SkillOnline2 && !SkillOnline && ChargeTime3 <= 1.0f)
+            {
+                anim.SetBool("isParrying", true);
+                characterMovement.SetMovementDisable(true);
+                transform.SendMessage("SetParrying", true);
+                SkillOnline3 = true;
+                ChargeTime3 += Time.deltaTime;
+                if(ChargeTime3 > 1.0f)
+                {
+                    anim.SetBool("isParrying", false);
+                    ResetChargingBars();
+                    StartCoroutine(ActivateSkill(playerSkills[6].id));
+                }
             }
+            if (Input.GetKeyUp(KeyCode.E) && !SkillOnline1 && !SkillOnline2 && !SkillOnline)
+            {
+                anim.SetBool("isParrying", false);
+                ResetChargingBars();
+                StartCoroutine(ActivateSkill(playerSkills[6].id));
+            }
+
         }
 
         if (currentCombo == maxCombo)
@@ -383,7 +406,6 @@ public class SkillScript : MonoBehaviour
             ChargingBars[i].fillAmount = 0;
         }
     }
-
 
     private IEnumerator ActivateSkill(int id)
     {
@@ -480,6 +502,7 @@ public class SkillScript : MonoBehaviour
                 break;
 
             case 6: // PARRY
+                /*
                 characterMovement.SetMovementDisable(true);
                 transform.SendMessage("SetParrying", true);
                 yield return new WaitForSeconds(1.0f);
@@ -487,7 +510,13 @@ public class SkillScript : MonoBehaviour
                 characterMovement.SetMovementDisable(false);
                 anim.SetBool("isParrying", false);
                 playerSkills[6].currentCooldown = playerSkills[6].cooldown;
-                SkillOnline = false;
+                SkillOnline = false;*/
+                transform.SendMessage("SetParrying", false);
+                characterMovement.SetMovementDisable(false);
+                ChargeTime3 = 0.0f;
+                SkillOnline3 = false;
+                anim.SetBool("isParrying", false);
+                playerSkills[6].currentCooldown = playerSkills[6].cooldown;
                 break;
 
             case 7: // ULTIMATE
