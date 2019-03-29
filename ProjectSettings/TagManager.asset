@@ -42,3 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: buttons
+    uniqueID: 3328605625
+    locked: 0
+  - name: shopbg
+    uniqueID: 3858355375
+    locked: 0

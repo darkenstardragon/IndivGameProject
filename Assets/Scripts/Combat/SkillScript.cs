@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class SkillScript : MonoBehaviour
 {
 
+    private const int NUMBER_OF_SKILLS = 10;
+
     private Animator anim;
     private CharacterMovement characterMovement;
 
@@ -43,7 +45,7 @@ public class SkillScript : MonoBehaviour
 
     private bool onGround = true;
 
-    public const float DodgingCooldown = 1;
+    public float DodgingCooldown = 1;
     public float CurrentDodgingCooldown;
 
     private bool isMoving = false;
@@ -53,7 +55,7 @@ public class SkillScript : MonoBehaviour
     private const float timeToInterruptAttackChain = 1.0f;
 
     private int currentCombo = 0;
-    private const int maxCombo = 20;
+    private int maxCombo = 999;
     private float currentComboTime = 0.0f;
     private const float comboResetTime = 5.0f;
     private float currentComboFillAmount = 0.0f;
@@ -64,12 +66,36 @@ public class SkillScript : MonoBehaviour
     private float currentCounterAttackTime = 0.0f;
     private const float COUNTER_ATTACK_TIME = 2.0f;
 
+    /**************************
+     * SKILL LEVEL CONTROLLER *
+     **************************
+    */
+
+    private int ultimateCostLevel = 0;
+    private int attackSpeedLevel = 0;
+
+    private int dodgeCooldownLevel = 0;
+    private bool dodgeAttackUnlock = false;
+    private int dodgeAttackDamageLevel = 2;
+    private int dodgeIframeDuration = 0;
+
+    private int parryCooldownLevel = 0;
+    private int parryDurationLevel = 0;
+    private bool counterAttackUnlock = false;
+    private int counterAttackDamageLevel = 0;
+
+    private int[] ultimateCost = { 25, 20, 15 };
+    private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f };
+
+    private float[] dodgeCooldown = { 6, 4, 2 };
+    private int[] dodgeAttackDamage = { 10, 15, 20 };
+
     public void Start()
     {
         characterMovement = FindObjectOfType<CharacterMovement>();
         anim = GetComponentInChildren<Animator>();
         CurrentDodgingCooldown = DodgingCooldown;
-        for(int i = 0; i < 9; ++i)
+        for(int i = 0; i < NUMBER_OF_SKILLS; ++i)
         {
             playerSkills[i].id = allSkills[i].id;
             playerSkills[i].name = allSkills[i].name;
@@ -92,6 +118,7 @@ public class SkillScript : MonoBehaviour
          * 7 - Combo Release Jump Attack
          * 8 - Counter Attack from Parry (#6)
         */
+
     }
     
     public void Update()
@@ -165,6 +192,7 @@ public class SkillScript : MonoBehaviour
             {
                 //print("1");
                 SkillOnline = true;
+                DodgingCooldown = dodgeCooldown[dodgeCooldownLevel];
                 CurrentDodgingCooldown = DodgingCooldown;
                 StartCoroutine(ActivateSkill(99));
             }
@@ -280,6 +308,7 @@ public class SkillScript : MonoBehaviour
                 autoAttackOnline = true;
                 if (attackingStep == 0)
                 {
+                    anim.speed = attackSpeedModifier[attackSpeedLevel];
                     anim.SetTrigger("attack");
                     timeSinceLastAttack = 0.0f;
                     SkillOnline = true;
@@ -288,6 +317,7 @@ public class SkillScript : MonoBehaviour
                 else if (attackingStep == 1)
                 {
                     //print("222222222222");
+                    anim.speed = attackSpeedModifier[attackSpeedLevel];
                     anim.SetTrigger("attack2");
                     timeSinceLastAttack = 0.0f;
                     SkillOnline = true;
@@ -296,18 +326,28 @@ public class SkillScript : MonoBehaviour
                 else if (attackingStep == 2)
                 {
                     //print("33333333333");
+                    anim.speed = attackSpeedModifier[attackSpeedLevel];
                     anim.SetTrigger("attack3");
                     timeSinceLastAttack = 0.0f;
                     SkillOnline = true;
                     StartCoroutine(ActivateSkill(playerSkills[5].id));
                 }
             }
-            else
+            else if (readyToCounter)
             {
                 //print("inn");
+                anim.speed = attackSpeedModifier[attackSpeedLevel];
                 anim.SetTrigger("attack3");
                 SkillOnline = true;
                 StartCoroutine(ActivateSkill(playerSkills[8].id));
+            }
+
+            else
+            {
+                anim.speed = attackSpeedModifier[attackSpeedLevel];
+                anim.SetTrigger("attack3");
+                SkillOnline = true;
+                StartCoroutine(ActivateSkill(playerSkills[9].id));
             }
         }
         
@@ -452,7 +492,7 @@ public class SkillScript : MonoBehaviour
                 playerSkills[2].currentCooldown = playerSkills[2].cooldown;
                 characterMovement.SetMovementDisable(true);
                 //transform.SendMessage("AfterCastMoving", 0.05f);
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.35f / attackSpeedModifier[attackSpeedLevel]);
                 characterMovement.SetMovementDisable(false);
 
 
@@ -461,6 +501,7 @@ public class SkillScript : MonoBehaviour
                 SkillOnline = false;
                 autoAttackOnline = false;
                 anim.SetTrigger("StopAA");
+                anim.speed = 1.0f;
                 break;
             case 3: // RUSH
                 characterMovement.Rush();
@@ -474,31 +515,33 @@ public class SkillScript : MonoBehaviour
                 playerSkills[4].currentCooldown = playerSkills[4].cooldown;
                 characterMovement.SetMovementDisable(true);
                 //transform.SendMessage("AfterCastMoving", 0.05f);
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.35f / attackSpeedModifier[attackSpeedLevel]);
                 characterMovement.SetMovementDisable(false);
                 //yield return new WaitForSeconds(0.5f);
                 ++attackingStep;
                 SkillOnline = false;
                 autoAttackOnline = false;
                 anim.SetTrigger("StopAA");
+                anim.speed = 1.0f;
                 break;
 
             case 5: // AUTO ATTACK CHAIN 3
                 characterMovement.SetMovementDisable(true);
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.2f / attackSpeedModifier[attackSpeedLevel]);
                 AoeDetector.SendMessage("KnockBack", 15);
                 playerSkills[5].currentCooldown = playerSkills[5].cooldown;
 
                 characterMovement.AfterCastMoving(0.05f);
                 
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.3f / attackSpeedModifier[attackSpeedLevel]);
                 characterMovement.SetMovementDisable(false);
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.3f / attackSpeedModifier[attackSpeedLevel]);
                 
                 SkillOnline = false;
                 autoAttackOnline = false;
                 anim.SetTrigger("StopAA");
                 attackingStep = 0;
+                anim.speed = 1.0f;
                 break;
 
             case 6: // PARRY
@@ -537,7 +580,7 @@ public class SkillScript : MonoBehaviour
                 currentCombo = 0;
                 break;
 
-            case 8: // COUNTER ATTACK
+            case 8: // COUNTER ATTACK 
                 readyToCounter = false;
                 transform.SendMessage("SetDodging", true);
                 characterMovement.SetMovementDisable(true);
@@ -557,7 +600,32 @@ public class SkillScript : MonoBehaviour
                 
                 currentCounterAttackTime = 0.0f;
                 transform.SendMessage("SetDodging", false);
+                anim.speed = 1.0f;
                 break;
+
+            case 9: // DODGE ATTACK
+                readyToCounter = false;
+                transform.SendMessage("SetDodging", true);
+                characterMovement.SetMovementDisable(true);
+                float[] timeAndSpeed3 = { 1.0f, 3.0f };
+                characterMovement.AfterCastMoving(timeAndSpeed3);
+                yield return new WaitForSeconds(0.6f);
+                for (int i = 0; i < 3; i++)
+                {
+                    AoeDetector.SendMessage("KnockBack", dodgeAttackDamage[dodgeAttackDamageLevel]);
+                    yield return new WaitForSeconds(0.1f);
+                }
+
+                characterMovement.SetMovementDisable(false);
+                playerSkills[9].currentCooldown = playerSkills[9].cooldown;
+                SkillOnline = false;
+                anim.SetTrigger("StopAA");
+
+                currentCounterAttackTime = 0.0f;
+                transform.SendMessage("SetDodging", false);
+                anim.speed = 1.0f;
+                break;
+
             case 99: // DODGE
                 //print("2");
                 characterMovement.Dodge();
@@ -581,6 +649,7 @@ public class SkillScript : MonoBehaviour
             currentCombo = 0;
             currentComboTime = 0.0f;
         }
+        maxCombo = ultimateCost[ultimateCostLevel];
         if (currentCombo > maxCombo) currentCombo = maxCombo;
 
         float comboValue = (float)currentCombo / (float)maxCombo;

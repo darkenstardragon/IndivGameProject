@@ -84,7 +84,7 @@ public class BetterEnemyMovement : MonoBehaviour
 
     public void SetDead()
     {
-        print("dead");
+        //print("dead");
         isDead = true;
         detector.SendMessage("SetStopAttacking");
     }

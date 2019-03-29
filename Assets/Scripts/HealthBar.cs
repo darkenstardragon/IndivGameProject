@@ -10,7 +10,7 @@ public class HealthBar : MonoBehaviour
     public Text ratioText;
     public SkillScript skillScript;
     public BetterEnemyMovement betterEnemyMovement;
-    
+    public CoinDrop coinDrop;
 
     private float hitpoint = 150;
     private float maxHitpoint = 150;
@@ -23,6 +23,7 @@ public class HealthBar : MonoBehaviour
     {
         UpdateHealthbar();
         skillScript = FindObjectOfType<SkillScript>();
+        coinDrop = FindObjectOfType<CoinDrop>();
         betterEnemyMovement = FindObjectOfType<BetterEnemyMovement>();
     }
 
@@ -110,5 +111,10 @@ public class HealthBar : MonoBehaviour
     public void SetDodging(bool b)
     {
         isDodging = b;
+    }
+
+    public bool GetDead()
+    {
+        return isDead;
     }
 }
