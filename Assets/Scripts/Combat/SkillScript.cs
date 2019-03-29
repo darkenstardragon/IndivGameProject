@@ -12,7 +12,7 @@ public class SkillScript : MonoBehaviour
     private CharacterMovement characterMovement;
 
     public const float RUSHING_TIME = 1.5f;
-    public const float DODGING_TIME = 0.5f;
+    private float dodgingTime = 0.0f;
     public float currentDodgingTime = 0.0f;
 
     public Skill[] allSkills;
@@ -66,6 +66,8 @@ public class SkillScript : MonoBehaviour
     private float currentCounterAttackTime = 0.0f;
     private const float COUNTER_ATTACK_TIME = 2.0f;
 
+    private bool autoAttackDisable = false;
+
     /**************************
      * SKILL LEVEL CONTROLLER *
      **************************
@@ -76,8 +78,8 @@ public class SkillScript : MonoBehaviour
 
     private int dodgeCooldownLevel = 0;
     private bool dodgeAttackUnlock = false;
-    private int dodgeAttackDamageLevel = 2;
-    private int dodgeIframeDuration = 0;
+    private int dodgeAttackDamageLevel = 0;
+    private int dodgeIframeDurationLevel = 0;
 
     private int parryCooldownLevel = 0;
     private int parryDurationLevel = 0;
@@ -87,8 +89,14 @@ public class SkillScript : MonoBehaviour
     private int[] ultimateCost = { 25, 20, 15 };
     private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f };
 
-    private float[] dodgeCooldown = { 6, 4, 2 };
+    private float[] dodgeCooldown = { 6.0f, 4.5f, 3.0f };
     private int[] dodgeAttackDamage = { 10, 15, 20 };
+    private float[] dodgeIframeDuration = { 0.3f, 0.5f, 0.7f };
+
+    private float[] parryCooldown = { 6.0f, 4.5f, 3.0f };
+    private float[] parryDuration = { 0.5f, 0.75f, 1.0f };
+    private int[] counterAttackDamage = { 10, 15, 20 };
+
 
     public void Start()
     {
@@ -123,7 +131,9 @@ public class SkillScript : MonoBehaviour
     
     public void Update()
     {
-        if(onGround)
+        playerSkills[6].cooldown = parryCooldown[parryCooldownLevel];
+
+        if (onGround)
             ProcessSkills();
         UpdateCooldown();
         SetChargingBarVisibility(IsCharging());
@@ -301,7 +311,7 @@ public class SkillScript : MonoBehaviour
         }*/
 
         // Auto Attack
-        if (Input.GetMouseButtonDown(0) && OtherSkillsAreNotOnline())
+        if (Input.GetMouseButtonDown(0) && OtherSkillsAreNotOnline() && !autoAttackDisable)
         {
             if (!readyToCounter && currentDodgingTime == 0)
             {
@@ -372,14 +382,14 @@ public class SkillScript : MonoBehaviour
                 SkillOnline = true;
                 StartCoroutine(ActivateSkill(playerSkills[6].id));
             }*/
-            if (Input.GetKey(KeyCode.E) && !SkillOnline1 && !SkillOnline2 && !SkillOnline && ChargeTime3 <= 1.0f)
+            if (Input.GetKey(KeyCode.E) && !SkillOnline1 && !SkillOnline2 && !SkillOnline && ChargeTime3 <= parryDuration[parryDurationLevel])
             {
                 anim.SetBool("isParrying", true);
                 characterMovement.SetMovementDisable(true);
                 transform.SendMessage("SetParrying", true);
                 SkillOnline3 = true;
                 ChargeTime3 += Time.deltaTime;
-                if(ChargeTime3 > 1.0f)
+                if(ChargeTime3 > parryDuration[parryDurationLevel])
                 {
                     anim.SetBool("isParrying", false);
                     ResetChargingBars();
@@ -589,7 +599,7 @@ public class SkillScript : MonoBehaviour
                 yield return new WaitForSeconds(0.6f);
                 for (int i = 0; i < 3; i++)
                 {
-                    AoeDetector.SendMessage("KnockBack", 10);
+                    AoeDetector.SendMessage("KnockBack", counterAttackDamage[counterAttackDamageLevel]);
                     yield return new WaitForSeconds(0.1f);
                 }
 
@@ -630,8 +640,9 @@ public class SkillScript : MonoBehaviour
                 //print("2");
                 characterMovement.Dodge();
                 transform.SendMessage("SetDodging", true);
-                currentDodgingTime = DODGING_TIME;
-                yield return new WaitForSeconds(DODGING_TIME);
+                dodgingTime = dodgeIframeDuration[dodgeIframeDurationLevel]; 
+                currentDodgingTime = dodgingTime;
+                yield return new WaitForSeconds(dodgingTime);
                 transform.SendMessage("SetDodging", false);
                 SkillOnline = false;
                 currentDodgingTime = 1.0f;
@@ -701,5 +712,10 @@ public class SkillScript : MonoBehaviour
     public void ReadyCounterAttack()
     {
         readyToCounter = true;
+    }
+
+    public void SetAutoAttackDisable(bool b)
+    {
+        autoAttackDisable = b;
     }
 }

@@ -6,11 +6,14 @@ public class ShopWindow : MonoBehaviour
 {
     public GameObject shopMenu;
     public bool active;
+    public GameObject player;
+    public SkillScript skillScript;
     // Start is called before the first frame update
     void Start()
     {
         active = false;
         ShowShopUI(active);
+        skillScript = player.GetComponent<SkillScript>();
     }
 
     // Update is called once per frame
@@ -21,6 +24,7 @@ public class ShopWindow : MonoBehaviour
             active = !active;
             print(active);
             ShowShopUI(active);
+            skillScript.SetAutoAttackDisable(active);
         }
     }
     
@@ -29,5 +33,8 @@ public class ShopWindow : MonoBehaviour
         shopMenu.SetActive(b);
     }
 
-
+    public void test()
+    {
+        print("testtt");
+    }
 }
