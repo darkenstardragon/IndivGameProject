@@ -86,8 +86,8 @@ public class SkillScript : MonoBehaviour
     private bool counterAttackUnlock = false;
     private int counterAttackDamageLevel = 0;
 
-    private int[] ultimateCost = { 25, 20, 15 };
-    private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f };
+    private int[] ultimateCost = { 25, 22, 19, 16 };
+    private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f, 2.0f};
 
     private float[] dodgeCooldown = { 6.0f, 4.5f, 3.0f };
     private int[] dodgeAttackDamage = { 10, 15, 20 };
@@ -717,5 +717,47 @@ public class SkillScript : MonoBehaviour
     public void SetAutoAttackDisable(bool b)
     {
         autoAttackDisable = b;
+    }
+
+    public int AttackSpeedLevel
+    {
+        get
+        {
+            return attackSpeedLevel;
+        }
+        set
+        {
+            attackSpeedLevel = Mathf.Clamp(value, 0, attackSpeedModifier.Length - 1);
+            print("attack speed level = " + attackSpeedLevel);
+        }
+    }
+
+    public int AttackSpeedSize
+    {
+        get
+        {
+            return attackSpeedModifier.Length - 1;
+        }
+    }
+
+    public int UltimateCostLevel
+    {
+        get
+        {
+            return ultimateCostLevel;
+        }
+        set
+        {
+            ultimateCostLevel = Mathf.Clamp(value, 0, ultimateCost.Length - 1);
+            print("ult cost = " + ultimateCostLevel);
+        }
+    }
+
+    public int UltimateCostSize
+    {
+        get
+        {
+            return ultimateCost.Length - 1;
+        }
     }
 }
