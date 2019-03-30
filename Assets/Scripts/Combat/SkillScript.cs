@@ -75,6 +75,7 @@ public class SkillScript : MonoBehaviour
 
     private int ultimateCostLevel = 0;
     private int attackSpeedLevel = 0;
+    private int ultimateDamageLevel = 0;
 
     private int dodgeCooldownLevel = 0;
     private bool dodgeAttackUnlock = false;
@@ -86,16 +87,17 @@ public class SkillScript : MonoBehaviour
     private bool counterAttackUnlock = false;
     private int counterAttackDamageLevel = 0;
 
+    private int[] ultimateDamage = { 10, 15, 20, 25 };
     private int[] ultimateCost = { 25, 22, 19, 16 };
     private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f, 2.0f};
 
-    private float[] dodgeCooldown = { 6.0f, 4.5f, 3.0f };
-    private int[] dodgeAttackDamage = { 10, 15, 20 };
-    private float[] dodgeIframeDuration = { 0.3f, 0.5f, 0.7f };
+    private float[] dodgeCooldown = { 6.0f, 5.0f, 4.0f , 3.0f};
+    private int[] dodgeAttackDamage = { 10, 15, 20, 25 };
+    private float[] dodgeIframeDuration = { 0.3f, 0.45f, 0.6f , 0.75f };
 
-    private float[] parryCooldown = { 6.0f, 4.5f, 3.0f };
-    private float[] parryDuration = { 0.5f, 0.75f, 1.0f };
-    private int[] counterAttackDamage = { 10, 15, 20 };
+    private float[] parryCooldown = { 6.0f, 5.0f, 4.0f, 3.0f};
+    private float[] parryDuration = { 0.5f, 0.75f, 1.0f , 1.25f};
+    private int[] counterAttackDamage = { 10, 15, 20, 25 };
 
 
     public void Start()
@@ -343,7 +345,7 @@ public class SkillScript : MonoBehaviour
                     StartCoroutine(ActivateSkill(playerSkills[5].id));
                 }
             }
-            else if (readyToCounter)
+            else if (readyToCounter && counterAttackUnlock)
             {
                 //print("inn");
                 anim.speed = attackSpeedModifier[attackSpeedLevel];
@@ -352,7 +354,7 @@ public class SkillScript : MonoBehaviour
                 StartCoroutine(ActivateSkill(playerSkills[8].id));
             }
 
-            else
+            else if(dodgeAttackUnlock)
             {
                 anim.speed = attackSpeedModifier[attackSpeedLevel];
                 anim.SetTrigger("attack3");
@@ -579,7 +581,7 @@ public class SkillScript : MonoBehaviour
                 yield return new WaitForSeconds(1.0f);
                 for (int i = 0; i < 3; i++)
                 {
-                    AoeDetector.SendMessage("KnockBack", 10);
+                    AoeDetector.SendMessage("KnockBack", ultimateDamage[ultimateDamageLevel]);
                     yield return new WaitForSeconds(0.1f);
                 }
 
@@ -728,7 +730,6 @@ public class SkillScript : MonoBehaviour
         set
         {
             attackSpeedLevel = Mathf.Clamp(value, 0, attackSpeedModifier.Length - 1);
-            print("attack speed level = " + attackSpeedLevel);
         }
     }
 
@@ -749,7 +750,6 @@ public class SkillScript : MonoBehaviour
         set
         {
             ultimateCostLevel = Mathf.Clamp(value, 0, ultimateCost.Length - 1);
-            print("ult cost = " + ultimateCostLevel);
         }
     }
 
@@ -758,6 +758,170 @@ public class SkillScript : MonoBehaviour
         get
         {
             return ultimateCost.Length - 1;
+        }
+    }
+
+    public int UltimateDamageLevel
+    {
+        get
+        {
+            return ultimateDamageLevel;
+        }
+        set
+        {
+            ultimateDamageLevel = Mathf.Clamp(value, 0, ultimateDamage.Length - 1);
+        }
+    }
+
+    public int UltimateDamageSize
+    {
+        get
+        {
+            return ultimateDamage.Length - 1;
+        }
+    }
+
+    public bool DodgeAttackUnlock
+    {
+        get
+        {
+            return dodgeAttackUnlock;
+        }
+        set
+        {
+            dodgeAttackUnlock = value;
+        }
+    }
+
+    public int DodgeCooldownLevel
+    {
+        get
+        {
+            return dodgeCooldownLevel;
+        }
+        set
+        {
+            dodgeCooldownLevel = Mathf.Clamp(value, 0, dodgeCooldown.Length - 1);
+        }
+    }
+
+    public int DodgeCooldownSize
+    {
+        get
+        {
+            return dodgeCooldown.Length - 1;
+        }
+    }
+
+    public int DodgeAttackDamageLevel
+    {
+        get
+        {
+            return dodgeAttackDamageLevel;
+        }
+        set
+        {
+            dodgeAttackDamageLevel = Mathf.Clamp(value, 0, dodgeAttackDamage.Length - 1);
+        }
+    }
+
+    public int DodgeAttackDamageSize
+    {
+        get
+        {
+            return dodgeAttackDamage.Length - 1;
+        }
+    }
+
+    public int DodgeIframeDurationLevel
+    {
+        get
+        {
+            return dodgeIframeDurationLevel;
+        }
+        set
+        {
+            dodgeIframeDurationLevel = Mathf.Clamp(value, 0, dodgeIframeDuration.Length - 1);
+        }
+    }
+
+    public int DodgeIframeDurationSize
+    {
+        get
+        {
+            return dodgeIframeDuration.Length - 1;
+        }
+    }
+
+    public bool CounterAttackUnlock
+    {
+        get
+        {
+            return counterAttackUnlock;
+        }
+        set
+        {
+            counterAttackUnlock = value;
+        }
+    }
+
+    public int ParryCooldownLevel
+    {
+        get
+        {
+            return parryCooldownLevel;
+        }
+        set
+        {
+            parryCooldownLevel = Mathf.Clamp(value, 0, parryCooldown.Length - 1);
+        }
+    }
+
+    public int ParryCooldownSize
+    {
+        get
+        {
+            return parryCooldown.Length - 1;
+        }
+    }
+
+    public int ParryDurationLevel
+    {
+        get
+        {
+            return parryDurationLevel;
+        }
+        set
+        {
+            parryDurationLevel = Mathf.Clamp(value, 0, parryDuration.Length - 1);
+        }
+    }
+
+    public int ParryDurationSize
+    {
+        get
+        {
+            return parryDuration.Length - 1;
+        }
+    }
+
+    public int CounterAttackDamageLevel
+    {
+        get
+        {
+            return counterAttackDamageLevel;
+        }
+        set
+        {
+            counterAttackDamageLevel = Mathf.Clamp(value, 0, counterAttackDamage.Length - 1);
+        }
+    }
+
+    public int CounterAttackDamageSize
+    {
+        get
+        {
+            return counterAttackDamage.Length - 1;
         }
     }
 }

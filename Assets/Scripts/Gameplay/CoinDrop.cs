@@ -39,11 +39,11 @@ public class CoinDrop : MonoBehaviour
     IEnumerator DropCoins(int coin)
     {
         yield return new WaitForSeconds(0.5f);
-        print("test");
+        // print("test");
         Vector3 newpos = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
         var x = Instantiate(FloatingTextPrefab, newpos, Quaternion.identity, transform);
         x.GetComponent<TextMesh>().color = Color.yellow;
-        x.GetComponent<TextMesh>().text = coin.ToString();
+        x.GetComponent<TextMesh>().text = "+" + coin.ToString();
         x.GetComponent<Transform>().LookAt(2 * transform.position - Camera.main.transform.position);
         gameManager.SetGold(gameManager.GetGold() + coin);
     }
