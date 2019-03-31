@@ -63,7 +63,14 @@ public class Detector : MonoBehaviour
                         player.SendMessage("IncreaseComboPoint");
                         if (isKnockBack)
                         {
-                            col.SendMessage("KnockBack", 0.25f);
+                            Animator anim = col.GetComponent<Animator>();
+                            ChasingBehavior chasingScript = anim.GetBehaviour<ChasingBehavior>();
+                            IdleBehavior idle = anim.GetBehaviour<IdleBehavior>();
+                            //anim.SendMessage("KnockBack", 0.25f);
+                            if(anim.GetBool("isChasing"))
+                                chasingScript.KnockBack(0.25f);
+                            else
+                                idle.KnockBack(0.25f);
                         }
                     }
                     catch (MissingReferenceException)

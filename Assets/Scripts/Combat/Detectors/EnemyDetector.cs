@@ -57,7 +57,7 @@ public class EnemyDetector : MonoBehaviour
         stopAttacking = true;
     }
 
-    private void ResetAttackTime()
+    public void ResetAttackTime()
     {
         timer = resetTime;
         //print("reset");

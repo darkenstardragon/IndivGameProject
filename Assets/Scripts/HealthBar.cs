@@ -11,6 +11,7 @@ public class HealthBar : MonoBehaviour
     public SkillScript skillScript;
     public BetterEnemyMovement betterEnemyMovement;
     public CoinDrop coinDrop;
+    public Transform enemyDetector;
 
     private float hitpoint;
     public float maxHitpoint;
@@ -96,8 +97,16 @@ public class HealthBar : MonoBehaviour
             ratioText.text = "DEAD";
             if(transform.tag == "enemy" && transform != null)
             {
-                transform.SendMessage("SetDead");
+                //transform.SendMessage("SetDead");
+                Animator anim = GetComponent<Animator>();
+                ChasingBehavior chasingScript = anim.GetBehaviour<ChasingBehavior>();
+                IdleBehavior idle = anim.GetBehaviour<IdleBehavior>();
+                chasingScript.SetDead();
+                idle.SetDead();
+                enemyDetector.SendMessage("SetStopAttacking");
                 Destroy(gameObject, 5);
+                //Destroy(this.gameObject, 5);
+                print("test");
             }
         }
     }
@@ -116,5 +125,10 @@ public class HealthBar : MonoBehaviour
     public bool GetDead()
     {
         return isDead;
+    }
+
+    public void ResetAttackTimeHB()
+    {
+        enemyDetector.SendMessage("ResetAttackTime");
     }
 }
