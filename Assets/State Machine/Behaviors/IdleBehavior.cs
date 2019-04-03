@@ -19,9 +19,9 @@ public class IdleBehavior : StateMachineBehaviour
     private float knockBackTime = 0.0f;
     private const float KNOCKBACK_SPEED = 30.0f;
 
-    private bool readyForNewDestination = true;
+    private bool readyForNewDestination;
     private float newDestinationTime = 0.0f;
-    private const float DESTINATION_RESET_TIME = 3.0f;
+    private const float DESTINATION_RESET_TIME = 5.0f;
 
     private Vector3 dir = Vector3.zero;
     private Vector3 originalPosition;
@@ -29,12 +29,17 @@ public class IdleBehavior : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        readyForNewDestination = true;
         Debug.Log("idle");
         originalPosition = animator.transform.position;
         healthBar = animator.GetComponent<HealthBar>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         controller = animator.GetComponent<CharacterController>();
         agent = animator.GetComponent<NavMeshAgent>();
+        if(agent == null)
+        {
+            agent = animator.GetComponentInParent<NavMeshAgent>();
+        }
         agent.speed = agent.speed / 2;
         Delay(1.0f);
         agent.isStopped = false;
@@ -89,7 +94,7 @@ public class IdleBehavior : StateMachineBehaviour
                     {
                         Debug.Log("reached!");
                         readyForNewDestination = true;
-                        Delay(0.5f);
+                        Delay(1.0f);
                         newDestinationTime = 0.0f;
                     }
                     else
