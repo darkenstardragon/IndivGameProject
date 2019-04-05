@@ -23,11 +23,14 @@ public class ChasingBehavior : StateMachineBehaviour
     private float knockBackTime = 0.0f;
     private const float KNOCKBACK_SPEED = 30.0f;
 
+    private bool triggered;
+
     private Vector3 dir = Vector3.zero;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        triggered = false;
         player = GameObject.FindGameObjectWithTag("Player").transform;
         agent = animator.GetComponent<NavMeshAgent>();
         healthBar = animator.GetComponent<HealthBar>();
@@ -93,6 +96,14 @@ public class ChasingBehavior : StateMachineBehaviour
                 }
             }
         }
+        else
+        {
+            if (!triggered)
+            {
+                animator.SetBool("isDead", true);
+                triggered = true;
+            }
+        }
 
         if (Vector3.Distance(animator.transform.position, player.position) > lookDistance)
         {
@@ -117,6 +128,14 @@ public class ChasingBehavior : StateMachineBehaviour
         //Debug.Log("injaa");
         isKnockBack = true;
         knockBackTime = time;
+    }
+
+    public HealthBar GetHealthBar
+    {
+        get
+        {
+            return healthBar;
+        }
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

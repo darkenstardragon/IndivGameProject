@@ -106,7 +106,7 @@ public class HealthBar : MonoBehaviour
                 enemyDetector.SendMessage("SetStopAttacking");
                 Destroy(gameObject, 5);
                 //Destroy(this.gameObject, 5);
-                print("test");
+                //print("test");
             }
         }
     }
@@ -130,5 +130,13 @@ public class HealthBar : MonoBehaviour
     public void ResetAttackTimeHB()
     {
         enemyDetector.SendMessage("ResetAttackTime");
+    }
+
+    public Transform EnemyDetector
+    {
+        get
+        {
+            return enemyDetector;
+        }
     }
 }

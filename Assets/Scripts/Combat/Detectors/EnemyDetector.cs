@@ -15,13 +15,15 @@ public class EnemyDetector : MonoBehaviour
     public Image AttackProgressBar;
     public Image AttackProgressBarBackground;
 
+    private bool playerIsInHitbox = false;
+
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "Player")
         {
-            
             timerStart = true;
             player = other;
+            playerIsInHitbox = true;
         }
     }
 
@@ -31,6 +33,7 @@ public class EnemyDetector : MonoBehaviour
         {
             timerStart = false;
             timer = 1.0f;
+            playerIsInHitbox = false;
         }
     }
 
@@ -52,9 +55,24 @@ public class EnemyDetector : MonoBehaviour
         }
     }
 
-    private void SetStopAttacking()
+    public void BossSwipe()
     {
+        if (playerIsInHitbox)
+        {
+            player.SendMessage("TakeDamage", 50);
+            Debug.Log("BossSwipe");
+        }
+    }
+
+    public void SetStopAttacking()
+    {
+        timer = 1.0f;
         stopAttacking = true;
+    }
+
+    public void StartAttacking()
+    {
+        stopAttacking = false;
     }
 
     public void ResetAttackTime()

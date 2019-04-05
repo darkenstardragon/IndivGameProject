@@ -105,6 +105,10 @@ public class IdleBehavior : StateMachineBehaviour
                 }
             }
         }
+        else
+        {
+            animator.SetBool("isDead", true);
+        }
 
         if (Vector3.Distance(animator.transform.position, player.transform.position) <= lookDistance)
         {

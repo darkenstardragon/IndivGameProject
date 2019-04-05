@@ -4189,7 +4189,7 @@ MonoBehaviour:
   betterEnemyMovement: {fileID: 0}
   coinDrop: {fileID: 0}
   enemyDetector: {fileID: 940177964}
-  maxHitpoint: 170
+  maxHitpoint: 5
 --- !u!114 &677757259
 MonoBehaviour:
   m_ObjectHideFlags: 0
