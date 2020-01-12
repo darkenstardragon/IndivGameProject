@@ -1,5 +1,6 @@
 # IndivGameProject
 3D Unity script testing project
+
 A part of Individual Study @Chulalongkorn University
 ## Functionalities
 * 3D Movement and Jumping system
