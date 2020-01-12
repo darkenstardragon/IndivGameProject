@@ -138,6 +138,22 @@ public class ChasingBehavior : StateMachineBehaviour
         }
     }
 
+    public NavMeshAgent GetAgent
+    {
+        get
+        {
+            return agent;
+        }
+    }
+
+    public Transform Player
+    {
+        get
+        {
+            return player;
+        }
+    }
+
     // OnStateMove is called right after Animator.OnAnimatorMove()
     //override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     //{

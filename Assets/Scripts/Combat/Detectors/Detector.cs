@@ -17,16 +17,6 @@ public class Detector : MonoBehaviour
         colliders = new HashSet<Collider>();
         colliderNames = new HashSet<string>();
     }
-    /*
-    private void OnTriggerStay(Collider col)
-    {
-        if(col.tag == "enemy" && damage > 0)
-        {
-            col.SendMessage("TakeDamage", damage);
-            damage = 0;
-        }
-    }
-    */
     
     private void OnTriggerEnter(Collider col)
     {

@@ -16,6 +16,7 @@ public class EnemyDetector : MonoBehaviour
     public Image AttackProgressBarBackground;
 
     private bool playerIsInHitbox = false;
+    private bool timerActive = true;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -45,22 +46,28 @@ public class EnemyDetector : MonoBehaviour
         if (timerStart)
         {
            
-            timer -= Time.deltaTime;
+            if(timerActive)
+                timer -= Time.deltaTime;
             if(timer < 0)
             {
                 if(!stopAttacking)
+                {
                     player.SendMessage("TakeDamage", damage);
+                    Debug.Log("test");
+                }
                 ResetAttackTime();
             }
         }
     }
 
-    public void BossSwipe()
+    public void BossSwipe(int damage)
     {
         if (playerIsInHitbox)
         {
-            player.SendMessage("TakeDamage", 50);
-            Debug.Log("BossSwipe");
+            player.SendMessage("TakeDamage", damage);
+            //CharacterMovement characterMovement = player.GetComponent<CharacterMovement>();
+            //characterMovement.KnockedBack(new float[2]{ 1.0f, 3.0f }, Vector3.Normalize(player.transform.position - transform.position));
+            //Debug.Log("BossSwipe");
         }
     }
 
@@ -79,5 +86,18 @@ public class EnemyDetector : MonoBehaviour
     {
         timer = resetTime;
         //print("reset");
+    }
+
+    public float GetTimer
+    {
+        get
+        {
+            return timer;
+        }
+    }
+
+    public void SetTimerActive(bool b)
+    {
+        timerActive = b;
     }
 }

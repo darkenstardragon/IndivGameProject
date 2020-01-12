@@ -38,7 +38,7 @@ public class ShopWindow : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             active = !active;
-            print(active);
+            //print(active);
             ShowShopUI(active);
             skillScript.SetAutoAttackDisable(active);
         }

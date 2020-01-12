@@ -124,8 +124,18 @@ public class IdleBehavior : StateMachineBehaviour
 
     private Vector3 FindNewDestination()
     {
-        float x = Random.Range(-2.0f, 2.0f);
-        float z = Random.Range(-2.0f, 2.0f);
+        float x = Random.Range(3.5f, 4.0f);
+        float z = Random.Range(3.5f, 4.0f);
+        float xPosChance = Random.Range(0, 100);
+        float zPosChance = Random.Range(0, 100);
+        if(xPosChance <= 50.0f)
+        {
+            x = -x;
+        }
+        if(zPosChance <= 50.0f)
+        {
+            z = -z;
+        }
         Vector3 des = new Vector3(x, 0, z);
         return des;
     }

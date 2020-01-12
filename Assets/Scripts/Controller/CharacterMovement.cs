@@ -260,6 +260,7 @@ public class CharacterMovement : MonoBehaviour
         isAfterCastMoving = true;
         afterCastMovingTime = time;
         dir = Quaternion.Euler(0, currentX + currentRotateAngle, 0) * Vector3.forward;
+        
     }
 
     public void AfterCastMoving(float[] timeAndSpeed)
@@ -268,6 +269,14 @@ public class CharacterMovement : MonoBehaviour
         afterCastMovingTime = timeAndSpeed[0];
         customAfterCastMovementSpeed = timeAndSpeed[1];
         dir = Quaternion.Euler(0, currentX + currentRotateAngle, 0) * Vector3.forward;
+    }
+
+    public void KnockedBack(float[] timeAndSpeed, Vector3 direction)
+    {
+        isAfterCastMoving = true;
+        afterCastMovingTime = timeAndSpeed[0];
+        customAfterCastMovementSpeed = timeAndSpeed[1];
+        dir = Quaternion.Euler(0, currentX + currentRotateAngle, 0) * direction;
     }
 
     public void SetCharging(bool b)

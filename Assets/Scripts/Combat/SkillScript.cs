@@ -89,7 +89,7 @@ public class SkillScript : MonoBehaviour
 
     private int[] ultimateDamage = { 10, 15, 20, 25 };
     private int[] ultimateCost = { 25, 22, 19, 16 };
-    private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f, 1.8f, 2.0f};
+    private float[] attackSpeedModifier = { 1.0f, 1.2f, 1.4f, 1.6f };
 
     private float[] dodgeCooldown = { 6.0f, 5.0f, 4.0f , 3.0f};
     private int[] dodgeAttackDamage = { 10, 15, 20, 25 };
@@ -197,6 +197,16 @@ public class SkillScript : MonoBehaviour
     
     private void ProcessSkills()
     {
+        /*
+        if (Input.GetKey(KeyCode.F))
+        {
+            Time.timeScale = 0.3f;
+        }
+        if (Input.GetKey(KeyCode.G))
+        {
+            Time.timeScale = 1.0f;
+        }*/
+
         //Dodging
         if (CurrentDodgingCooldown == 0)
         {
